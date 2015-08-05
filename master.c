@@ -7,12 +7,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "spi.h"
-#include "uart.h"
-#include "timer.h"
 #include <avr/power.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <float.h>
+
+#include "spi.h"
+#include "uart.h"
+#include "BulkVendor.h"
+#include "timer.h"
 
 FILE mystdout = FDEV_SETUP_STREAM(uart_tx, NULL,_FDEV_SETUP_WRITE);
 FILE mystdin = FDEV_SETUP_STREAM(NULL, uart_rx, _FDEV_SETUP_READ);
@@ -34,6 +37,9 @@ void main_init(void)
 	clock_prescale_set(clock_div_1);
 
 	spi_init_master();
+	SetupHardware();
+	GlobalInterruptEnable();
+	sei();
 }
 
 int main(void)
@@ -60,6 +66,8 @@ int main(void)
 	{
 		uint16_t values[16];
 
+		USB_USBTask();
+
 		start_timer16();
 		asm("NOP");
 		timer_16_read_ms();
@@ -74,6 +82,7 @@ int main(void)
 		start_timer16();
 		spi_read_all((void*)&devices, values);
 		timer_16_read_ms();
+
 
 		start_timer16();
 		for(i=0; i<10; i++)
