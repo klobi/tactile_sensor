@@ -1,6 +1,7 @@
 # Run "make help" for target help.
 
 TOOLPATH = $(CURDIR)/tools
+NAME = TactileSensor
 
 MCU          = atmega32u4
 ARCH         = AVR8
@@ -8,7 +9,7 @@ BOARD        = ADAFRUITU4
 F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
-TARGET       = build/TactileSensor
+TARGET       = build/$(NAME)
 SRC          = spi.c uart.c master.c timer.c  sensorArray.c Descriptors.c BulkVendor.c $(LUFA_SRC_USB)#lib/usb_vendor.c
 LUFA_PATH    = LUFA
 CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/
@@ -21,7 +22,12 @@ all: hex
 hex: $(TARGET).hex
 
 post_compile: $(TARGET).hex
-	@$(abspath $(TOOLPATH))/teensy_post_compile -file="$(basename $<)" -path="$(abspath $(CURDIR))/build" -tools="$(abspath $(TOOLPATH))"
+	@$(abspath $(TOOLPATH))/teensy_post_compile -file="$(NAME)" -path="$(abspath $(CURDIR))/build" -tools="$(abspath $(TOOLPATH))"
+
+reboot:
+	@-$(abspath $(TOOLPATH))/teensy_reboot
+
+upload: post_compile reboot
 
 clean:
 
